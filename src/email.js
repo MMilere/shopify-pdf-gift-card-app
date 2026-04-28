@@ -19,7 +19,10 @@ export async function sendGiftCardEmail(message) {
   await transporter.sendMail({
     to: message.to,
     cc,
-    from: requiredEnv("FROM_EMAIL"),
+    from: {
+      name: process.env.FROM_NAME || "Meilė Odai",
+      address: requiredEnv("FROM_EMAIL"),
+    },
     subject: `Jūsų „Meilė Odai“ dovanų kuponas – ${formatAmount(message.amount, message.currency)}`,
     text: plainText(message),
     html: html(message),
