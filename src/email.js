@@ -1,9 +1,17 @@
-import sendgrid from "@sendgrid/mail";
+import nodemailer from "nodemailer";
 
 export async function sendGiftCardEmail(message) {
-  sendgrid.setApiKey(requiredEnv("SENDGRID_API_KEY"));
+  const transporter = nodemailer.createTransport({
+    host: requiredEnv("SMTP_HOST"),
+    port: Number(process.env.SMTP_PORT || 465),
+    secure: String(process.env.SMTP_SECURE || "true") === "true",
+    auth: {
+      user: requiredEnv("SMTP_USER"),
+      pass: requiredEnv("SMTP_PASSWORD"),
+    },
+  });
 
-  await sendgrid.send({
+  await transporter.sendMail({
     to: message.to,
     from: requiredEnv("FROM_EMAIL"),
     subject: `Jūsų dovanų kortelė ${message.amount} ${message.currency}`,
@@ -11,10 +19,9 @@ export async function sendGiftCardEmail(message) {
     html: html(message),
     attachments: [
       {
-        content: message.pdf.toString("base64"),
         filename: "dovanu-kortele.pdf",
-        type: "application/pdf",
-        disposition: "attachment",
+        content: message.pdf,
+        contentType: "application/pdf",
       },
     ],
   });
