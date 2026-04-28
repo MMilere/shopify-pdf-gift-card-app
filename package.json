@@ -1,0 +1,16 @@
+{
+  "name": "shopify-pdf-gift-card-app",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "check": "node --check src/server.js && node --check src/shopify.js && node --check src/pdf.js && node --check src/email.js && node --check src/order.js"
+  },
+  "dependencies": {
+    "@sendgrid/mail": "^8.1.4",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "playwright": "^1.49.1"
+  }
+}

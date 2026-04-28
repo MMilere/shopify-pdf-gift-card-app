@@ -1,0 +1,29 @@
+{% comment %}
+  Add this inside the gift card product form.
+  The app reads these line item properties from the paid order webhook.
+{% endcomment %}
+
+<div class="pdf-gift-card-fields">
+  <label for="pdf-gift-card-recipient-name">Gavėjo vardas</label>
+  <input
+    id="pdf-gift-card-recipient-name"
+    type="text"
+    name="properties[Recipient name]"
+    autocomplete="name"
+  >
+
+  <label for="pdf-gift-card-recipient-email">Gavėjo el. paštas</label>
+  <input
+    id="pdf-gift-card-recipient-email"
+    type="email"
+    name="properties[Recipient email]"
+    autocomplete="email"
+  >
+
+  <label for="pdf-gift-card-message">Žinutė</label>
+  <textarea
+    id="pdf-gift-card-message"
+    name="properties[Message]"
+    rows="4"
+  ></textarea>
+</div>
