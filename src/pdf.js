@@ -15,30 +15,29 @@ export async function renderGiftCardPdf(card) {
   const sansBold = await pdf.embedFont(StandardFonts.HelveticaBold);
 
   const ink = rgb(0.12, 0.11, 0.1);
-  const muted = rgb(0.33, 0.29, 0.25);
+
+  drawText(page, String(card.code || "").toUpperCase(), {
+    x: width * 0.31,
+    y: height * 0.684,
+    size: 14,
+    font: sansBold,
+    color: ink,
+  });
 
   drawText(page, formatAmount(card.amount, card.currency), {
-    x: width * 0.12,
-    y: height * 0.63,
-    size: 42,
+    x: width * 0.20,
+    y: height * 0.625,
+    size: 20,
     font: serifBold,
     color: ink,
   });
 
-  drawText(page, String(card.code || "").toUpperCase(), {
-    x: width * 0.12,
-    y: height * 0.51,
-    size: 20,
+  drawText(page, formatDateLt(card.expiresOn), {
+    x: width * 0.62,
+    y: height * 0.626,
+    size: 12,
     font: sansBold,
     color: ink,
-  });
-
-  drawText(page, formatDateLt(card.expiresOn), {
-    x: width * 0.12,
-    y: height * 0.43,
-    size: 16,
-    font: sansBold,
-    color: muted,
   });
 
   return Buffer.from(await pdf.save());
