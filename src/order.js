@@ -15,6 +15,7 @@ export function extractGiftCardJobs(order) {
         amount: item.price || item.final_price || item.discounted_price,
         currency,
         customerId: order.customer?.admin_graphql_api_id || null,
+        expiresOn: addMonths(dateOnly(order.processed_at || order.created_at || new Date()), 6),
         recipientEmail:
           propertyAny(item, ["Recipient email", "Recipient Email", "Gavėjo el. paštas", "Gavejo el. pastas"]) ||
           order.email,
@@ -25,6 +26,22 @@ export function extractGiftCardJobs(order) {
         message: propertyAny(item, ["Message", "Žinutė", "Zinute"]) || "Linkime malonaus apsipirkimo.",
       }));
     });
+}
+
+function dateOnly(value) {
+  return new Date(value);
+}
+
+function addMonths(date, months) {
+  const result = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+  const day = result.getUTCDate();
+  result.setUTCMonth(result.getUTCMonth() + months);
+
+  if (result.getUTCDate() !== day) {
+    result.setUTCDate(0);
+  }
+
+  return result.toISOString().slice(0, 10);
 }
 
 function propertyAny(item, names) {

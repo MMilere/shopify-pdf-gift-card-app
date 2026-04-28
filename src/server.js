@@ -123,6 +123,7 @@ async function handlePaidOrder(order) {
       recipientEmail: job.recipientEmail,
       recipientName: job.recipientName,
       message: job.message,
+      expiresOn: job.expiresOn,
       note: `PDF gift card for order ${order.name || order.id}`,
     });
   }
