@@ -19,39 +19,54 @@ export async function renderGiftCardPdf(card) {
 
   if (card.orderName) {
     drawText(page, `Uzsakymas ${card.orderName}`, {
-      x: width * 0.74,
-      y: height * 0.965,
-      size: 8,
+      x: width * 0.78,
+      y: height * 0.975,
+      size: 7,
       font: sansBold,
       color: muted,
     });
   }
 
   drawText(page, String(card.code || "").toUpperCase(), {
-    x: width * 0.25,
-    y: height * 0.707,
-    size: 10,
+    x: width * 0.232,
+    y: height * 0.7225,
+    size: 11,
     font: sansBold,
     color: ink,
   });
 
   drawText(page, formatAmount(card.amount, card.currency), {
-    x: width * 0.18,
-    y: height * 0.659,
+    x: width * 0.185,
+    y: height * 0.6746,
     size: 11,
     font: serifBold,
     color: ink,
   });
 
   drawText(page, formatDateLt(card.expiresOn), {
-    x: width * 0.60,
-    y: height * 0.660,
-    size: 7,
+    x: width * 0.668,
+    y: height * 0.6746,
+    size: 11,
     font: sansBold,
     color: ink,
   });
 
   return Buffer.from(await pdf.save());
+}
+
+function drawCenteredText(page, text, options) {
+  const value = String(text || "");
+  const textWidth = options.font.widthOfTextAtSize(value, options.size);
+  const x = options.x + Math.max(0, (options.width - textWidth) / 2);
+  const y = options.y + Math.max(0, (options.height - options.size) / 2);
+
+  page.drawText(value, {
+    x,
+    y,
+    size: options.size,
+    font: options.font,
+    color: options.color,
+  });
 }
 
 function drawText(page, text, options) {
