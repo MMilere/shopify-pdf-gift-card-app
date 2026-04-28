@@ -15,6 +15,17 @@ export async function renderGiftCardPdf(card) {
   const sansBold = await pdf.embedFont(StandardFonts.HelveticaBold);
 
   const ink = rgb(0.12, 0.11, 0.1);
+  const muted = rgb(0.45, 0.4, 0.36);
+
+  if (card.orderName) {
+    drawText(page, `Uzsakymas ${card.orderName}`, {
+      x: width * 0.74,
+      y: height * 0.965,
+      size: 8,
+      font: sansBold,
+      color: muted,
+    });
+  }
 
   drawText(page, String(card.code || "").toUpperCase(), {
     x: width * 0.31,

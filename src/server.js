@@ -124,6 +124,7 @@ async function handlePaidOrder(order) {
       recipientName: job.recipientName,
       message: job.message,
       expiresOn: job.expiresOn,
+      orderName: order.name || String(order.id),
       note: `PDF gift card for order ${order.name || order.id}`,
     });
   }
@@ -156,6 +157,7 @@ async function createAndSendGiftCard(input) {
     message,
     code: giftCard.code,
     expiresOn: giftCard.expiresOn,
+    orderName: input.orderName,
   });
 
   await sendGiftCardEmail({
