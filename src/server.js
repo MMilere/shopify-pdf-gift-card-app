@@ -15,6 +15,30 @@ app.get("/health", (_req, res) => {
   res.status(200).json({ ok: true });
 });
 
+app.post(
+  "/webhooks/orders-paid",
+  express.raw({ type: "application/json" }),
+  async (req, res) => {
+    if (!isValidShopifyWebhook(req)) {
+      res.status(401).send("Invalid webhook signature");
+      return;
+    }
+
+    res.status(200).send("OK");
+
+    const order = JSON.parse(req.body.toString("utf8"));
+    try {
+      await handlePaidOrder(order);
+    } catch (error) {
+      console.error("Failed to process order", {
+        orderId: order?.id,
+        message: error.message,
+        stack: error.stack,
+      });
+    }
+  }
+);
+
 app.get("/login", (_req, res) => {
   res.type("html").send(loginPage());
 });
@@ -56,30 +80,6 @@ app.post("/gift-cards/send", async (req, res) => {
     res.status(500).type("html").send(errorPage(error));
   }
 });
-
-app.post(
-  "/webhooks/orders-paid",
-  express.raw({ type: "application/json" }),
-  async (req, res) => {
-    if (!isValidShopifyWebhook(req)) {
-      res.status(401).send("Invalid webhook signature");
-      return;
-    }
-
-    res.status(200).send("OK");
-
-    const order = JSON.parse(req.body.toString("utf8"));
-    try {
-      await handlePaidOrder(order);
-    } catch (error) {
-      console.error("Failed to process order", {
-        orderId: order?.id,
-        message: error.message,
-        stack: error.stack,
-      });
-    }
-  }
-);
 
 async function handlePaidOrder(order) {
   const jobs = extractGiftCardJobs(order);
@@ -146,7 +146,7 @@ async function createAndSendGiftCard(input) {
 }
 
 function isValidShopifyWebhook(req) {
-  const secret = process.env.SHOPIFY_WEBHOOK_SECRET;
+  const secret = process.env.SHOPIFY_WEBHOOK_SECRET || process.env.SHOPIFY_CLIENT_SECRET;
   const hmac = req.get("X-Shopify-Hmac-Sha256");
   if (!secret || !hmac) return false;
 
@@ -184,6 +184,7 @@ function adminForm() {
     <section class="panel">
       <h1>Sukurti PDF dovanų kortelę</h1>
       <p>App sukurs Shopify gift card, paims pilną kodą sukūrimo momentu ir išsiųs PDF gavėjui.</p>
+      <p>Automatiniam siuntimui Shopify webhook URL: <strong>${escapeHtml(webhookUrl())}</strong></p>
       <form method="post" action="/gift-cards/send">
         <label>
           Gavėjo vardas
@@ -219,6 +220,11 @@ function adminForm() {
       </form>
     </section>
   `);
+}
+
+function webhookUrl() {
+  const appUrl = String(process.env.APP_URL || "https://shopify-pdf-gift-card-app.onrender.com").replace(/\/$/, "");
+  return `${appUrl}/webhooks/orders-paid`;
 }
 
 function loginPage(error = "") {

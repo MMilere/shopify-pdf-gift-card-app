@@ -12,13 +12,27 @@ export function extractGiftCardJobs(order) {
     .flatMap((item) => {
       const quantity = Number(item.quantity || 1);
       return Array.from({ length: quantity }, () => ({
-        amount: item.price,
+        amount: item.price || item.final_price || item.discounted_price,
         currency,
-        recipientEmail: property(item, "Recipient email") || order.email,
-        recipientName: property(item, "Recipient name") || order.customer?.first_name || "Dovanų kortelės gavėjas",
-        message: property(item, "Message") || "Linkime malonaus apsipirkimo.",
+        recipientEmail:
+          propertyAny(item, ["Recipient email", "Recipient Email", "Gavėjo el. paštas", "Gavejo el. pastas"]) ||
+          order.email,
+        recipientName:
+          propertyAny(item, ["Recipient name", "Recipient Name", "Gavėjo vardas", "Gavejo vardas"]) ||
+          order.customer?.first_name ||
+          "Dovanų kortelės gavėjas",
+        message: propertyAny(item, ["Message", "Žinutė", "Zinute"]) || "Linkime malonaus apsipirkimo.",
       }));
     });
+}
+
+function propertyAny(item, names) {
+  for (const name of names) {
+    const value = property(item, name);
+    if (value) return value;
+  }
+
+  return "";
 }
 
 function property(item, name) {
