@@ -28,25 +28,25 @@ export async function renderGiftCardPdf(card) {
   }
 
   drawText(page, String(card.code || "").toUpperCase(), {
-    x: width * 0.31,
-    y: height * 0.684,
-    size: 14,
+    x: width * 0.29,
+    y: height * 0.744,
+    size: 12,
     font: sansBold,
     color: ink,
   });
 
   drawText(page, formatAmount(card.amount, card.currency), {
-    x: width * 0.20,
-    y: height * 0.625,
-    size: 20,
+    x: width * 0.22,
+    y: height * 0.700,
+    size: 16,
     font: serifBold,
     color: ink,
   });
 
   drawText(page, formatDateLt(card.expiresOn), {
-    x: width * 0.62,
-    y: height * 0.626,
-    size: 12,
+    x: width * 0.63,
+    y: height * 0.700,
+    size: 9,
     font: sansBold,
     color: ink,
   });
