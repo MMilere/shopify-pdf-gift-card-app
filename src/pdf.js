@@ -28,25 +28,25 @@ export async function renderGiftCardPdf(card) {
   }
 
   drawText(page, String(card.code || "").toUpperCase(), {
-    x: width * 0.29,
-    y: height * 0.704,
-    size: 12,
+    x: width * 0.25,
+    y: height * 0.707,
+    size: 10,
     font: sansBold,
     color: ink,
   });
 
   drawText(page, formatAmount(card.amount, card.currency), {
-    x: width * 0.22,
-    y: height * 0.657,
-    size: 14,
+    x: width * 0.18,
+    y: height * 0.659,
+    size: 11,
     font: serifBold,
     color: ink,
   });
 
   drawText(page, formatDateLt(card.expiresOn), {
-    x: width * 0.63,
+    x: width * 0.60,
     y: height * 0.660,
-    size: 9,
+    size: 7,
     font: sansBold,
     color: ink,
   });
@@ -90,11 +90,10 @@ function formatAmount(amount, currency) {
 }
 
 function formatDateLt(value) {
-  if (!value) return "be galiojimo pabaigos";
-  return new Intl.DateTimeFormat("lt-LT", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    timeZone: "UTC",
-  }).format(new Date(`${value}T00:00:00Z`));
+  if (!value) return "";
+  const date = new Date(`${value}T00:00:00Z`);
+  const year = date.getUTCFullYear();
+  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(date.getUTCDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 }
