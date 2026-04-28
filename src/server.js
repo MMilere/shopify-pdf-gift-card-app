@@ -15,11 +15,17 @@ app.get("/health", (_req, res) => {
   res.status(200).json({ ok: true });
 });
 
+app.get("/webhook-test", (_req, res) => {
+  console.log("Webhook test endpoint opened");
+  res.status(200).send("Webhook test OK");
+});
+
 app.post(
   "/webhooks/orders-paid",
   express.raw({ type: "application/json" }),
   async (req, res) => {
     if (!isValidShopifyWebhook(req)) {
+      console.error("Rejected Shopify webhook: invalid signature");
       res.status(401).send("Invalid webhook signature");
       return;
     }
@@ -28,6 +34,18 @@ app.post(
 
     const order = JSON.parse(req.body.toString("utf8"));
     try {
+      console.log("Received paid order webhook", {
+        orderId: order?.id,
+        orderName: order?.name,
+        email: order?.email,
+        lineItems: (order?.line_items || []).map((item) => ({
+          title: item.title,
+          productId: item.product_id,
+          variantId: item.variant_id,
+          price: item.price,
+          quantity: item.quantity,
+        })),
+      });
       await handlePaidOrder(order);
     } catch (error) {
       console.error("Failed to process order", {
@@ -83,7 +101,19 @@ app.post("/gift-cards/send", async (req, res) => {
 
 async function handlePaidOrder(order) {
   const jobs = extractGiftCardJobs(order);
-  if (jobs.length === 0) return;
+  if (jobs.length === 0) {
+    console.log("No matching gift card products in order", {
+      configuredProductIds: process.env.GIFT_CARD_PRODUCT_IDS || "",
+      configuredVariantIds: process.env.GIFT_CARD_VARIANT_IDS || "",
+    });
+    return;
+  }
+
+  console.log("Creating PDF gift cards for paid order", {
+    orderId: order?.id,
+    orderName: order?.name,
+    count: jobs.length,
+  });
 
   for (const job of jobs) {
     await createAndSendGiftCard({
