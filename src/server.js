@@ -15,6 +15,20 @@ app.get("/health", (_req, res) => {
   res.status(200).json({ ok: true });
 });
 
+app.get("/login", (_req, res) => {
+  res.type("html").send(loginPage());
+});
+
+app.post("/login", (req, res) => {
+  if (req.body.password !== process.env.ADMIN_PASSWORD) {
+    res.status(401).type("html").send(loginPage("Neteisingas slaptažodis"));
+    return;
+  }
+
+  res.set("Set-Cookie", `gift_card_admin=${sessionValue()}; Path=/; HttpOnly; Secure; SameSite=None`);
+  res.redirect("/");
+});
+
 app.use(requireAdminPassword);
 
 app.get("/", (_req, res) => {
@@ -151,18 +165,12 @@ function requireAdminPassword(req, res, next) {
     return;
   }
 
-  const header = req.get("authorization") || "";
-  const [scheme, encoded] = header.split(" ");
-  const credentials = encoded ? Buffer.from(encoded, "base64").toString("utf8") : "";
-  const [_user, password] = credentials.split(":");
-
-  if (scheme === "Basic" && password === expected) {
+  if (hasValidSession(req)) {
     next();
     return;
   }
 
-  res.set("WWW-Authenticate", 'Basic realm="PDF Gift Cards"');
-  res.status(401).send("Authentication required");
+  res.redirect("/login");
 }
 
 function required(value, label) {
@@ -208,6 +216,23 @@ function adminForm() {
           <input name="note" value="Manual PDF gift card">
         </label>
         <button type="submit">Sukurti ir išsiųsti PDF</button>
+      </form>
+    </section>
+  `);
+}
+
+function loginPage(error = "") {
+  return layout(`
+    <section class="panel">
+      <h1>Prisijungimas</h1>
+      <p>Įveskite šio PDF dovanų kortelių app slaptažodį.</p>
+      ${error ? `<p class="error-text">${escapeHtml(error)}</p>` : ""}
+      <form method="post" action="/login">
+        <label>
+          Slaptažodis
+          <input name="password" type="password" required autocomplete="current-password">
+        </label>
+        <button type="submit">Prisijungti</button>
       </form>
     </section>
   `);
@@ -343,6 +368,10 @@ function layout(content) {
           .error h1 {
             color: #8d2f2f;
           }
+          .error-text {
+            color: #8d2f2f;
+            font-weight: 700;
+          }
           @media (max-width: 520px) {
             .grid {
               grid-template-columns: 1fr;
@@ -352,6 +381,18 @@ function layout(content) {
       </head>
       <body>${content}</body>
     </html>`;
+}
+
+function hasValidSession(req) {
+  const cookie = req.get("cookie") || "";
+  return cookie.split(";").some((part) => {
+    const [name, value] = part.trim().split("=");
+    return name === "gift_card_admin" && value === sessionValue();
+  });
+}
+
+function sessionValue() {
+  return crypto.createHash("sha256").update(process.env.ADMIN_PASSWORD || "").digest("hex");
 }
 
 function escapeHtml(value) {
