@@ -119,7 +119,7 @@ async function handlePaidOrder(order) {
     await createAndSendGiftCard({
       amount: job.amount,
       currency: job.currency,
-      customerId: job.customerId,
+      customerId: null,
       recipientEmail: job.recipientEmail,
       recipientName: job.recipientName,
       message: job.message,
