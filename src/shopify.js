@@ -23,14 +23,6 @@ export async function createGiftCard(input) {
     input: {
       initialValue: String(input.amount),
       note: input.note,
-      notify: false,
-      recipientAttributes: input.recipientEmail
-        ? {
-            email: input.recipientEmail,
-            name: input.recipientName || input.recipientEmail,
-            message: input.message || "",
-          }
-        : undefined,
     },
   };
 
