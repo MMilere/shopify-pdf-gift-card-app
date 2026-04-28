@@ -29,7 +29,7 @@ export async function renderGiftCardPdf(card) {
 
   drawText(page, String(card.code || "").toUpperCase(), {
     x: width * 0.29,
-    y: height * 0.744,
+    y: height * 0.704,
     size: 12,
     font: sansBold,
     color: ink,
@@ -37,15 +37,15 @@ export async function renderGiftCardPdf(card) {
 
   drawText(page, formatAmount(card.amount, card.currency), {
     x: width * 0.22,
-    y: height * 0.700,
-    size: 16,
+    y: height * 0.657,
+    size: 14,
     font: serifBold,
     color: ink,
   });
 
   drawText(page, formatDateLt(card.expiresOn), {
     x: width * 0.63,
-    y: height * 0.700,
+    y: height * 0.660,
     size: 9,
     font: sansBold,
     color: ink,
