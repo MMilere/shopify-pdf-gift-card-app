@@ -8,9 +8,9 @@
     "check": "node --check src/server.js && node --check src/shopify.js && node --check src/pdf.js && node --check src/email.js && node --check src/order.js"
   },
   "dependencies": {
-    "@sendgrid/mail": "^8.1.4",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "nodemailer": "^6.9.16",
     "playwright": "^1.49.1"
   }
 }
