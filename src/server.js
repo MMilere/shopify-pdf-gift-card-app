@@ -119,6 +119,7 @@ async function handlePaidOrder(order) {
     await createAndSendGiftCard({
       amount: job.amount,
       currency: job.currency,
+      customerId: job.customerId,
       recipientEmail: job.recipientEmail,
       recipientName: job.recipientName,
       message: job.message,
@@ -137,7 +138,7 @@ async function createAndSendGiftCard(input) {
   const giftCard = await createGiftCard({
     amount,
     currency,
-    customerId: null,
+    customerId: input.customerId || null,
     recipientEmail,
     recipientName,
     message,

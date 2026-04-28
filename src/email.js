@@ -11,8 +11,14 @@ export async function sendGiftCardEmail(message) {
     },
   });
 
+  const cc = String(process.env.EMAIL_CC || "")
+    .split(",")
+    .map((email) => email.trim())
+    .filter(Boolean);
+
   await transporter.sendMail({
     to: message.to,
+    cc,
     from: requiredEnv("FROM_EMAIL"),
     subject: `Jūsų dovanų kortelė ${message.amount} ${message.currency}`,
     text: plainText(message),

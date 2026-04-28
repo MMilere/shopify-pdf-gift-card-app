@@ -14,6 +14,7 @@ export function extractGiftCardJobs(order) {
       return Array.from({ length: quantity }, () => ({
         amount: item.price || item.final_price || item.discounted_price,
         currency,
+        customerId: order.customer?.admin_graphql_api_id || null,
         recipientEmail:
           propertyAny(item, ["Recipient email", "Recipient Email", "Gavėjo el. paštas", "Gavejo el. pastas"]) ||
           order.email,
